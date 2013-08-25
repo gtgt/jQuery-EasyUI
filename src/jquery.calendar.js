@@ -14,11 +14,12 @@
 	function setSize(target){
 		var opts = $.data(target, 'calendar').options;
 		var t = $(target);
-		if (opts.fit == true){
-			var p = t.parent();
-			opts.width = p.width();
-			opts.height = p.height();
-		}
+//		if (opts.fit == true){
+//			var p = t.parent();
+//			opts.width = p.width();
+//			opts.height = p.height();
+//		}
+		opts.fit ? $.extend(opts, t._fit()) : t._fit(false);
 		var header = t.find('.calendar-header');
 		t._outerWidth(opts.width);
 		t._outerHeight(opts.height);

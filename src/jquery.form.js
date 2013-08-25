@@ -214,6 +214,8 @@
 		if ($.fn.combobox){t.find('.combobox-f').combobox('reset');}
 		if ($.fn.combotree){t.find('.combotree-f').combotree('reset');}
 		if ($.fn.combogrid){t.find('.combogrid-f').combogrid('reset');}
+		if ($.fn.datebox){t.find('.datebox-f').datebox('reset');}
+		if ($.fn.datetimebox){t.find('.datetimebox-f').datetimebox('reset');}
 		if ($.fn.spinner){t.find('.spinner-f').spinner('reset');}
 		if ($.fn.timespinner){t.find('.timespinner-f').timespinner('reset');}
 		if ($.fn.numberbox){t.find('.numberbox-f').numberbox('reset');}
@@ -259,6 +261,10 @@
 		return true;
 	}
 	
+	function setValidation(target, novalidate){
+		$(target).find('.validatebox-text:not(:disabled)').validatebox(novalidate ? 'disableValidation' : 'enableValidation');
+	}
+	
 	$.fn.form = function(options, param){
 		if (typeof options == 'string'){
 			return $.fn.form.methods[options](this, param);
@@ -298,6 +304,16 @@
 		},
 		validate: function(jq){
 			return validate(jq[0]);
+		},
+		disableValidation: function(jq){
+			return jq.each(function(){
+				setValidation(this, true);
+			});
+		},
+		enableValidation: function(jq){
+			return jq.each(function(){
+				setValidation(this, false);
+			});
 		}
 	};
 	

@@ -9,7 +9,7 @@
  * http://www.jeasyui.com/license_commercial.php
  */
 (function($){
-	var isDragging = false;
+//	var isDragging = false;
 	function drag(e){
 		var state = $.data(e.data.target, 'draggable');
 		var opts = state.options;
@@ -84,7 +84,8 @@
 	}
 	
 	function doDown(e){
-		isDragging = true;
+//		isDragging = true;
+		$.fn.draggable.isDragging = true;
 		var state = $.data(e.data.target, 'draggable');
 		var opts = state.options;
 		
@@ -156,7 +157,8 @@
 	}
 	
 	function doUp(e){
-		isDragging = false;
+//		isDragging = false;
+		$.fn.draggable.isDragging = false;
 //		drag(e);
 		doMove(e);
 		
@@ -264,26 +266,21 @@
 			} else {
 				opts = $.extend({}, $.fn.draggable.defaults, $.fn.draggable.parseOptions(this), options || {});
 			}
+			var handle = opts.handle ? (typeof opts.handle=='string' ? $(opts.handle, this) : opts.handle) : $(this);
 			
-			if (opts.disabled == true) {
-				$(this).css('cursor', '');
-//				$(this).css('cursor', 'default');
-				return;
-			}
-			
-			var handle = null;
-            if (typeof opts.handle == 'undefined' || opts.handle == null){
-                handle = $(this);
-            } else {
-                handle = (typeof opts.handle == 'string' ? $(opts.handle, this) : opts.handle);
-            }
 			$.data(this, 'draggable', {
 				options: opts,
 				handle: handle
 			});
 			
+			if (opts.disabled) {
+				$(this).css('cursor', '');
+				return;
+			}
+			
 			handle.unbind('.draggable').bind('mousemove.draggable', {target:this}, function(e){
-				if (isDragging) return;
+//				if (isDragging) return;
+				if ($.fn.draggable.isDragging){return}
 				var opts = $.data(e.data.target, 'draggable').options;
 				if (checkArea(e)){
 					$(this).css('cursor', opts.cursor);
@@ -386,33 +383,35 @@
 		onStopDrag: function(e){}
 	};
 	
-	$(function(){
-		function touchHandler(e) {
-			var touches = e.changedTouches, first = touches[0], type = "";
-
-			switch(e.type) {
-				case "touchstart": type = "mousedown"; break;
-				case "touchmove":  type = "mousemove"; break;        
-				case "touchend":   type = "mouseup";   break;
-				default: return;
-			}
-			var simulatedEvent = document.createEvent("MouseEvent");
-			simulatedEvent.initMouseEvent(type, true, true, window, 1,
-									  first.screenX, first.screenY,
-									  first.clientX, first.clientY, false,
-									  false, false, false, 0/*left*/, null);
-
-			first.target.dispatchEvent(simulatedEvent);
-			if (isDragging){
-				e.preventDefault();
-			}
-		}
-		
-		if (document.addEventListener){
-			document.addEventListener("touchstart", touchHandler, true);
-			document.addEventListener("touchmove", touchHandler, true);
-			document.addEventListener("touchend", touchHandler, true);
-			document.addEventListener("touchcancel", touchHandler, true); 
-		}
-	});
+	$.fn.draggable.isDragging = false;
+	
+//	$(function(){
+//		function touchHandler(e) {
+//			var touches = e.changedTouches, first = touches[0], type = "";
+//
+//			switch(e.type) {
+//				case "touchstart": type = "mousedown"; break;
+//				case "touchmove":  type = "mousemove"; break;        
+//				case "touchend":   type = "mouseup";   break;
+//				default: return;
+//			}
+//			var simulatedEvent = document.createEvent("MouseEvent");
+//			simulatedEvent.initMouseEvent(type, true, true, window, 1,
+//									  first.screenX, first.screenY,
+//									  first.clientX, first.clientY, false,
+//									  false, false, false, 0/*left*/, null);
+//
+//			first.target.dispatchEvent(simulatedEvent);
+//			if (isDragging){
+//				e.preventDefault();
+//			}
+//		}
+//		
+//		if (document.addEventListener){
+//			document.addEventListener("touchstart", touchHandler, true);
+//			document.addEventListener("touchmove", touchHandler, true);
+//			document.addEventListener("touchend", touchHandler, true);
+//			document.addEventListener("touchcancel", touchHandler, true); 
+//		}
+//	});
 })(jQuery);

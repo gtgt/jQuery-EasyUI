@@ -21,7 +21,8 @@
 				singleSelect: true,
 				collapsible: true,
 				rownumbers: true,
-				url: '../datagrid/datagrid_data1.json',
+				url: 'datagrid_data1.json',
+				method: 'get',
 				onLoadSuccess: function(){
 					$(this).datagrid('freezeRow',0).datagrid('freezeRow',1);
 				}

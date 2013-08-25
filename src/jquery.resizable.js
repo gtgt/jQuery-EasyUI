@@ -9,7 +9,7 @@
  * http://www.jeasyui.com/license_commercial.php
  */
 (function($){
-	var isResizing = false;
+//	var isResizing = false;
 	$.fn.resizable = function(options, param){
 		if (typeof options == 'string'){
 			return $.fn.resizable.methods[options](this, param);
@@ -77,7 +77,8 @@
 		}
 		
 		function doDown(e){
-			isResizing = true;
+//			isResizing = true;
+			$.fn.resizable.isResizing = true;
 			$.data(e.data.target, 'resizable').options.onStartResize.call(e.data.target, e);
 			return false;
 		}
@@ -91,7 +92,8 @@
 		}
 		
 		function doUp(e){
-			isResizing = false;
+//			isResizing = false;
+			$.fn.resizable.isResizing = false;
 			resize(e, true);
 			applySize(e);
 			$.data(e.data.target, 'resizable').options.onStopResize.call(e.data.target, e);
@@ -120,7 +122,8 @@
 			
 			// bind mouse event using namespace resizable
 			$(this).bind('mousemove.resizable', {target:this}, function(e){
-				if (isResizing) return;
+//				if (isResizing) return;
+				if ($.fn.resizable.isResizing){return}
 				var dir = getDirection(e);
 				if (dir == '') {
 					$(e.data.target).css('cursor', '');
@@ -235,5 +238,7 @@
 		onResize: function(e){},
 		onStopResize: function(e){}
 	};
+	
+	$.fn.resizable.isResizing = false;
 	
 })(jQuery);

@@ -20,7 +20,8 @@
 			data-options="
 				singleSelect: true,
 				iconCls: 'icon-save',
-				url: '../datagrid/datagrid_data1.json',
+				url: 'datagrid_data1.json',
+				method: 'get',
 				rowStyler: function(index,row){
 					if (row.listprice < 30){
 						return 'background-color:#6293BB;color:#fff;font-weight:bold;';

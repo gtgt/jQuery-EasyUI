@@ -21,7 +21,7 @@
 		<input type="checkbox" checked onchange="$('#tt').tree({cascadeCheck:$(this).is(':checked')})">CascadeCheck 
 		<input type="checkbox" onchange="$('#tt').tree({onlyLeafCheck:$(this).is(':checked')})">OnlyLeafCheck
 	</div>
-	<ul id="tt" class="easyui-tree" data-options="url:'../tree/tree_data1.json',animate:true,checkbox:true"></ul>
+	<ul id="tt" class="easyui-tree" data-options="url:'tree_data1.json',method:'get',animate:true,checkbox:true"></ul>
 	<script type="text/javascript">
 		function getChecked(){
 			var nodes = $('#tt').tree('getChecked');

@@ -21,10 +21,9 @@
 		var state = $.data(target, 'datebox');
 		var opts = state.options;
 		
-		$(target).addClass('datebox-f');
-		$(target).combo($.extend({}, opts, {
+		$(target).addClass('datebox-f').combo($.extend({}, opts, {
 			onShowPanel:function(){
-				state.calendar.calendar('resize');
+				setCalendarSize();
 				opts.onShowPanel.call(target);
 			}
 		}));
@@ -53,22 +52,31 @@
 			setValue(target, opts.value);
 			
 			var button = $('<div class="datebox-button"></div>').appendTo(panel);
-			$('<a href="javascript:void(0)" class="datebox-current"></a>').html(opts.currentText).appendTo(button);
-			$('<a href="javascript:void(0)" class="datebox-close"></a>').html(opts.closeText).appendTo(button);
-			button.find('.datebox-current,.datebox-close').hover(
-					function(){$(this).addClass('datebox-button-hover');},
-					function(){$(this).removeClass('datebox-button-hover');}
-			);
-			button.find('.datebox-current').click(function(){
+			var current_btn = $('<a href="javascript:void(0)" class="datebox-current"></a>').html(opts.currentText).appendTo(button);
+			var close_btn = $('<a href="javascript:void(0)" class="datebox-close"></a>').html(opts.closeText).appendTo(button);
+			current_btn.click(function(){
 				state.calendar.calendar({
 					year:new Date().getFullYear(),
 					month:new Date().getMonth()+1,
 					current:new Date()
 				});
 			});
-			button.find('.datebox-close').click(function(){
+			close_btn.click(function(){
 				$(target).combo('hidePanel');
 			});
+		}
+		
+		function setCalendarSize(){
+			if (opts.panelHeight != 'auto'){
+				var panel = $(target).combo('panel');
+				var ci = panel.children('div.datebox-calendar-inner');
+				var height = panel.height();
+				panel.children().not(ci).each(function(){
+					height -= $(this).outerHeight();
+				});
+				ci._outerHeight(height);
+			}
+			state.calendar.calendar('resize');
 		}
 	}
 	
@@ -83,8 +91,9 @@
 	 * called when user press enter key
 	 */
 	function doEnter(target){
-		var opts = $.data(target, 'datebox').options;
-		var c = $.data(target, 'datebox').calendar;
+		var state = $.data(target, 'datebox');
+		var opts = state.options;
+		var c = state.calendar;
 		var value = opts.formatter(c.calendar('options').current);
 		setValue(target, value);
 		$(target).combo('hidePanel');

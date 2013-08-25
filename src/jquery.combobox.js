@@ -50,12 +50,12 @@
 			item = panel.children('div.combobox-item:visible:' + (dir=='next'?'first':'last'));
 		} else {
 			if (dir == 'next'){
-				item = item.nextAll(':visible:first');
+				item = item.nextAll('div.combobox-item:visible:first');
 				if (!item.length){
 					item = panel.children('div.combobox-item:visible:first');
 				}
 			} else {
-				item = item.prevAll(':visible:first');
+				item = item.prevAll('div.combobox-item:visible:first');
 				if (!item.length){
 					item = panel.children('div.combobox-item:visible:last');
 				}
@@ -101,7 +101,8 @@
 		var state = $.data(target, 'combobox');
 		var opts = state.options;
 		var values = $(target).combo('getValues');
-		var index = values.indexOf(value+'');
+//		var index = values.indexOf(value+'');
+		var index = $.inArray(value+'', values);
 		if (index >= 0){
 			values.splice(index, 1);
 			setValues(target, values);
@@ -144,25 +145,36 @@
 	 * load data, the old list items will be removed.
 	 */
 	function loadData(target, data, remainText){
-		var opts = $.data(target, 'combobox').options;
-		var panel = $(target).combo('panel');
-		
-		data = opts.loadFilter.call(target, data);
-		$.data(target, 'combobox').data = data;
+		var state = $.data(target, 'combobox');
+		var opts = state.options;
+		state.data = opts.loadFilter.call(target, data);
+		data = state.data;
 		
 		var selected = $(target).combobox('getValues');
-		panel.empty();	// clear old data
+		var dd = [];
+		var group = undefined;
 		for(var i=0; i<data.length; i++){
-			var v = data[i][opts.valueField];
-			var s = data[i][opts.textField];
-			var item = $('<div class="combobox-item"></div>').appendTo(panel);
-			item.attr('value', v);
-			if (opts.formatter){
-				item.html(opts.formatter.call(target, data[i]));
+			var item = data[i];
+			var v = item[opts.valueField];
+			var s = item[opts.textField];
+			var g = item[opts.groupField];
+			
+			if (g){
+				if (group != g){
+					group = g;
+					dd.push('<div class="combobox-group" value="' + g + '">');
+					dd.push(opts.groupFormatter ? opts.groupFormatter.call(target, g) : g);
+					dd.push('</div>');
+				}
 			} else {
-				item.html(s);
+				group = undefined;
 			}
-			if (data[i]['selected']){
+			
+			dd.push('<div class="combobox-item' + (g ? ' combobox-gitem' : '') + '" value="' + v + '"' + (g ? ' group="' + g + '"' : '') + '>');
+			dd.push(opts.formatter ? opts.formatter.call(target, item) : s);
+			dd.push('</div>');
+			
+			if (item['selected']){
 				(function(){
 					for(var i=0; i<selected.length; i++){
 						if (v == selected[i]) return;
@@ -171,6 +183,8 @@
 				})();
 			}
 		}
+		$(target).combo('panel').html(dd.join(''));
+		
 		if (opts.multiple){
 			setValues(target, selected, remainText);
 		} else {
@@ -208,7 +222,8 @@
 	 * do the query action
 	 */
 	function doQuery(target, q){
-		var opts = $.data(target, 'combobox').options;
+		var state = $.data(target, 'combobox');
+		var opts = state.options;
 		
 		if (opts.multiple && !q){
 			setValues(target, [], true);
@@ -220,17 +235,24 @@
 			request(target, null, {q:q}, true);
 		} else {
 			var panel = $(target).combo('panel');
-			panel.find('div.combobox-item').hide();
-			var data = $.data(target, 'combobox').data;
+			panel.find('div.combobox-item,div.combobox-group').hide();
+			var data = state.data;
+			var group = undefined;
 			for(var i=0; i<data.length; i++){
-				if (opts.filter.call(target, q, data[i])){
-					var v = data[i][opts.valueField];
-					var s = data[i][opts.textField];
+				var item = data[i];
+				if (opts.filter.call(target, q, item)){
+					var v = item[opts.valueField];
+					var s = item[opts.textField];
+					var g = item[opts.groupField];
 					var item = panel.find('div.combobox-item[value="' + v + '"]');
 					item.show();
 					if (s == q){
 						setValues(target, [v], true);
 						item.addClass('combobox-item-selected');
+					}
+					if (opts.groupField && group != g){
+						panel.find('div.combobox-group[value="' + g + '"]').show();
+						group = g;
 					}
 				}
 			}
@@ -324,10 +346,14 @@
 				create(this);
 			} else {
 				state = $.data(this, 'combobox', {
-					options: $.extend({}, $.fn.combobox.defaults, $.fn.combobox.parseOptions(this), options)
+					options: $.extend({}, $.fn.combobox.defaults, $.fn.combobox.parseOptions(this), options),
+					data: []
 				});
 				create(this);
-				loadData(this, $.fn.combobox.parseData(this));
+				var data = $.fn.combobox.parseData(this);
+				if (data.length){
+					loadData(this, data);
+				}
 			}
 			if (state.options.data){
 				loadData(this, state.options.data);
@@ -401,26 +427,44 @@
 	$.fn.combobox.parseOptions = function(target){
 		var t = $(target);
 		return $.extend({}, $.fn.combo.parseOptions(target), $.parser.parseOptions(target,[
-			'valueField','textField','mode','method','url'
+			'valueField','textField','groupField','mode','method','url'
 		]));
 	};
 	
 	$.fn.combobox.parseData = function(target){
 		var data = [];
 		var opts = $(target).combobox('options');
-		$(target).children('option').each(function(){
-			var item = {};
-			item[opts.valueField] = $(this).attr('value')!=undefined ? $(this).attr('value') : $(this).html();
-			item[opts.textField] = $(this).html();
-			item['selected'] = $(this).attr('selected');
-			data.push(item);
+		$(target).children().each(function(){
+			if (this.tagName.toLowerCase() == 'optgroup'){
+				var group = $(this).attr('label');
+				$(this).children().each(function(){
+					_parseItem(this, group);
+				});
+			} else {
+				_parseItem(this);
+			}
 		});
 		return data;
+		
+		function _parseItem(el, group){
+			var t = $(el);
+			var item = {};
+			item[opts.valueField] = t.attr('value')!=undefined ? t.attr('value') : t.html();
+			item[opts.textField] = t.html();
+			item['selected'] = t.is(':selected');
+			if (group){
+				opts.groupField = opts.groupField || 'group';
+				item[opts.groupField] = group;
+			}
+			data.push(item);
+		}
 	};
 	
 	$.fn.combobox.defaults = $.extend({}, $.fn.combo.defaults, {
 		valueField: 'value',
 		textField: 'text',
+		groupField: null,
+		groupFormatter: function(group){return group;},
 		mode: 'local',	// or 'remote'
 		method: 'post',
 		url: null,

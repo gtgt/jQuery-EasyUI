@@ -1,5 +1,5 @@
 ﻿/**
- * jQuery EasyUI 1.3.3
+ * jQuery EasyUI 1.3.4
  * 
  * Copyright (c) 2009-2013 www.jeasyui.com. All rights reserved.
  *
@@ -93,9 +93,6 @@ function _6(_11){
 var _12=$.data(_11,"timespinner").options;
 var _13=$(_11).val();
 var _14=_d(_11,_13);
-if(!_14){
-_14=_d(_11,_12.value);
-}
 if(!_14){
 _12.value="";
 $(_11).val("");

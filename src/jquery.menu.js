@@ -61,7 +61,9 @@
 						var itemOpts = $.extend({}, $.parser.parseOptions(this,['name','iconCls','href']), {
 							disabled: (item.attr('disabled') ? true : undefined)
 						});
-						item.attr('name',itemOpts.name || '').attr('href',itemOpts.href || '');
+						item[0].itemName = itemOpts.name || '';
+						item[0].itemHref = itemOpts.href || '';
+//						item.attr('name',itemOpts.name || '').attr('href',itemOpts.href || '');
 						
 						var text = item.addClass('menu-item').html();
 						item.empty().append($('<div class="menu-text"></div>').html(text));
@@ -95,12 +97,13 @@
 			left:-10000
 		});
 		
-		menu.find('div.menu-item')._outerHeight(22);
+//		menu.find('div.menu-item')._outerHeight(22);
 		var width = 0;
 		menu.find('div.menu-text').each(function(){
 			if (width < $(this)._outerWidth()){
 				width = $(this)._outerWidth();
 			}
+			$(this).closest('div.menu-item')._outerHeight($(this)._outerHeight()+2);
 		});
 		width += 65;
 		menu._outerWidth(Math.max((menu[0].originalWidth || 0), width, opts.minWidth));
@@ -207,18 +210,20 @@
 	 */
 	function showMenu(target, param){
 		var left,top;
+		param = param || {};
 		var menu = $(param.menu || target);
 		if (menu.hasClass('menu-top')){
 			var opts = $.data(target, 'menu').options;
+			$.extend(opts, param);
 			left = opts.left;
 			top = opts.top;
-			if (param.alignTo){
-				var at = $(param.alignTo);
+			if (opts.alignTo){
+				var at = $(opts.alignTo);
 				left = at.offset().left;
 				top = at.offset().top + at._outerHeight();
 			}
-			if (param.left != undefined){left = param.left}
-			if (param.top != undefined){top = param.top}
+//			if (param.left != undefined){left = param.left}
+//			if (param.top != undefined){top = param.top}
 			if (left + menu.outerWidth() > $(window)._outerWidth() + $(document)._scrollLeft()){
 				left = $(window)._outerWidth() + $(document).scrollLeft() - menu.outerWidth() - 5;
 			}
@@ -328,8 +333,10 @@
 		$('<div class="menu-text"></div>').html(param.text).appendTo(item);
 		if (param.iconCls) $('<div class="menu-icon"></div>').addClass(param.iconCls).appendTo(item);
 		if (param.id) item.attr('id', param.id);
-		if (param.href) item.attr('href', param.href);
-		if (param.name) item.attr('name', param.name);
+//		if (param.href) item.attr('href', param.href);
+//		if (param.name) item.attr('name', param.name);
+		if (param.name){item[0].itemName = param.name}
+		if (param.href){item[0].itemHref = param.href}
 		if (param.onclick){
 			if (typeof param.onclick == 'string'){
 				item.attr('onclick', param.onclick);
@@ -460,8 +467,10 @@
 				id: t.attr('id'),
 				text: $.trim(t.children('div.menu-text').html()),
 				disabled: t.hasClass('menu-item-disabled'),
-				href: t.attr('href'),
-				name: t.attr('name'),
+//				href: t.attr('href'),
+//				name: t.attr('name'),
+				name: itemEl.itemName,
+				href: itemEl.itemHref,
 				onclick: itemEl.onclick
 			}
 			var icon = t.children('div.menu-icon');

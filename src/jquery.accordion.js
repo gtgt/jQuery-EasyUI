@@ -15,18 +15,12 @@
 (function($){
 	
 	function setSize(container){
-		var opts = $.data(container, 'accordion').options;
-		var panels = $.data(container, 'accordion').panels;
+		var state = $.data(container, 'accordion');
+		var opts = state.options;
+		var panels = state.panels;
 		
 		var cc = $(container);
 		opts.fit ? $.extend(opts, cc._fit()) : cc._fit(false);
-//		if (opts.fit == true){
-//			var p = cc.parent();
-//			p.addClass('panel-noscroll');
-//			if (p[0].tagName == 'BODY') $('html').addClass('panel-fit');
-//			opts.width = p.width();
-//			opts.height = p.height();
-//		}
 		
 		if (opts.width > 0){
 			cc._outerWidth(opts.width);
@@ -40,8 +34,7 @@
 		}
 		for(var i=0; i<panels.length; i++){
 			var panel = panels[i];
-			var header = panel.panel('header');
-			header._outerHeight(headerHeight);
+			panel.panel('header')._outerHeight(headerHeight);
 			panel.panel('resize', {
 				width: cc.width(),
 				height: panelHeight
@@ -153,6 +146,9 @@
 			headerCls: 'accordion-header',
 			bodyCls: 'accordion-body',
 			onBeforeExpand: function(){
+				if (options.onBeforeExpand){
+					if (options.onBeforeExpand.call(this) == false){return false}
+				}
 				var curr = getCurrent(container);
 				if (curr){
 					var header = $(curr).panel('header');
@@ -164,10 +160,14 @@
 				header.find('.accordion-collapse').removeClass('accordion-expand');
 			},
 			onExpand: function(){
+				if (options.onExpand){options.onExpand.call(this)}
 				var opts = $.data(container, 'accordion').options;
 				opts.onSelect.call(container, pp.panel('options').title, getPanelIndex(container, this));
 			},
 			onBeforeCollapse: function(){
+				if (options.onBeforeCollapse){
+					if (options.onBeforeCollapse.call(this) == false){return false}
+				}
 				var header = pp.panel('header');
 				header.removeClass('accordion-header-selected');
 				header.find('.accordion-collapse').addClass('accordion-expand');
@@ -240,8 +240,9 @@
 	}
 	
 	function add(container, options){
-		var opts = $.data(container, 'accordion').options;
-		var panels = $.data(container, 'accordion').panels;
+		var state = $.data(container, 'accordion');
+		var opts = state.options;
+		var panels = state.panels;
 		if (options.selected == undefined) options.selected = true;
 
 		stopAnimate(container);
@@ -259,8 +260,9 @@
 	}
 	
 	function remove(container, which){
-		var opts = $.data(container, 'accordion').options;
-		var panels = $.data(container, 'accordion').panels;
+		var state = $.data(container, 'accordion');
+		var opts = state.options;
+		var panels = state.panels;
 		
 		stopAnimate(container);
 		

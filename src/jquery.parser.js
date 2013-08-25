@@ -64,10 +64,13 @@
 			
 			var s = $.trim(t.attr('data-options'));
 			if (s){
-				var first = s.substring(0,1);
-				var last = s.substring(s.length-1,1);
-				if (first != '{') s = '{' + s;
-				if (last != '}') s = s + '}';
+//				var first = s.substring(0,1);
+//				var last = s.substring(s.length-1,1);
+//				if (first != '{') s = '{' + s;
+//				if (last != '}') s = s + '}';
+				if (s.substring(0, 1) != '{'){
+					s = '{' + s + '}';
+				}
 				options = (new Function('return ' + s))();
 			}
 				
@@ -191,3 +194,69 @@
 	}
 	
 })(jQuery);
+
+/**
+ * support for mobile devices
+ */
+(function($){
+	var longTouchTimer = null;
+	var dblTouchTimer = null;
+	var isDblClick = false;
+	
+	function onTouchStart(e){
+		if (e.touches.length != 1){return}
+		if (!isDblClick){
+			isDblClick = true;
+			dblClickTimer = setTimeout(function(){
+				isDblClick = false;
+			}, 500);
+		} else {
+			clearTimeout(dblClickTimer);
+			isDblClick = false;
+			fire(e, 'dblclick');
+//			e.preventDefault();
+		}
+		longTouchTimer = setTimeout(function(){
+			fire(e, 'contextmenu', 3);
+		}, 1000);
+		fire(e, 'mousedown');
+		if ($.fn.draggable.isDragging || $.fn.resizable.isResizing){
+			e.preventDefault();
+		}
+	}
+	function onTouchMove(e){
+		if (e.touches.length != 1){return}
+		if (longTouchTimer){
+			clearTimeout(longTouchTimer);
+		}
+		fire(e, 'mousemove');
+		if ($.fn.draggable.isDragging || $.fn.resizable.isResizing){
+			e.preventDefault();
+		}
+	}
+	function onTouchEnd(e){
+//		if (e.touches.length > 0){return}
+		if (longTouchTimer){
+			clearTimeout(longTouchTimer);
+		}
+		fire(e, 'mouseup');
+		if ($.fn.draggable.isDragging || $.fn.resizable.isResizing){
+			e.preventDefault();
+		}
+	}
+	
+	function fire(e, name, which){
+		var event = new $.Event(name);
+		event.pageX = e.changedTouches[0].pageX;
+		event.pageY = e.changedTouches[0].pageY;
+		event.which = which || 1;
+		$(e.target).trigger(event);
+	}
+	
+	if (document.addEventListener){
+		document.addEventListener("touchstart", onTouchStart, true);
+		document.addEventListener("touchmove", onTouchMove, true);
+		document.addEventListener("touchend", onTouchEnd, true);
+	}
+})(jQuery);
+

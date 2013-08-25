@@ -88,15 +88,15 @@
 			css:'tabs.css',
 			dependencies:['panel','linkbutton']
 		},
-		splitbutton:{
-			js:'jquery.splitbutton.js',
-			css:'splitbutton.css',
-			dependencies:['linkbutton','menu']
-		},
 		menubutton:{
 			js:'jquery.menubutton.js',
 			css:'menubutton.css',
 			dependencies:['linkbutton','menu']
+		},
+		splitbutton:{
+			js:'jquery.splitbutton.js',
+			css:'splitbutton.css',
+			dependencies:['menubutton']
 		},
 		accordion:{
 			js:'jquery.accordion.js',
@@ -169,6 +169,9 @@
 		slider:{
 			js:'jquery.slider.js',
 			dependencies:['draggable']
+		},
+		tooltip:{
+			js:'jquery.tooltip.js'
 		},
 		parser:{
 			js:'jquery.parser.js'

@@ -16,8 +16,8 @@
 		<div>You can append some buttons to the standard datagrid pager bar.</div>
 	</div>
 	<div style="margin:10px 0;"></div>
-	<table id="dg" class="easyui-datagrid" title="Custom DataGrid Pager" style="width:700px;height:250px"
-			data-options="rownumbers:true,singleSelect:true,pagination:true,url:'../datagrid/datagrid_data1.json'">
+	<table id="dg" title="Custom DataGrid Pager" style="width:700px;height:250px"
+			data-options="rownumbers:true,singleSelect:true,pagination:true,url:'datagrid_data1.json',method:'get'">
 		<thead>
 			<tr>
 				<th data-options="field:'itemid',width:80">Item ID</th>
@@ -31,7 +31,7 @@
 	</table>
 	<script type="text/javascript">
 		$(function(){
-			var pager = $('#dg').datagrid('getPager');	// get the pager of datagrid
+			var pager = $('#dg').datagrid().datagrid('getPager');	// get the pager of datagrid
 			pager.pagination({
 				buttons:[{
 					iconCls:'icon-search',
