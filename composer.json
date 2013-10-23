@@ -1,0 +1,22 @@
+{
+    "name": "ni-jmatthiesen/jQuery-EasyUI",
+    "description": "jQuery EasyUI",
+    "type": "component",
+    "homepage": "http://www.jeasyui.com/",
+    "require": {
+        "robloach/component-installer": "*"
+    },
+    "extra": {
+        "component": {
+            "files": [
+                "locale/**",
+                "plugins/**",
+                "src/**",
+                "themes/**",
+                "easyloader.js",
+                "jquery.easyui.min.js",
+                "jquery.easyui-dev.min.js"
+            ]
+        }
+    }
+}
