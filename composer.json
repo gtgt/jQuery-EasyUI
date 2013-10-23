@@ -4,7 +4,8 @@
     "type": "component",
     "homepage": "http://www.jeasyui.com/",
     "require": {
-        "robloach/component-installer": "*"
+        "robloach/component-installer": "*",
+        "components/jquery": "*"
     },
     "extra": {
         "component": {
